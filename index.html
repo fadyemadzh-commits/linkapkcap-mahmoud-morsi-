@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>مولّد مفاتيح الجيم</title>
+<style>
+  :root{
+    --bg-0:#070b14;
+    --bg-1:#0c1424;
+    --panel:#101b30;
+    --panel-2:#0a1220;
+    --line:#1e2c47;
+    --gold:#c9a227;
+    --gold-2:#e9c85a;
+    --text:#e9edf5;
+    --muted:#7c8aa0;
+    --ok:#3ddc97;
+    --danger:#e2586b;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(1200px 600px at 20% -10%, #12203a 0%, transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, #16233c 0%, transparent 55%),
+      linear-gradient(180deg, var(--bg-0), var(--bg-1) 40%, #050810 100%);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Cairo","Tahoma",sans-serif;
+    display:flex;
+    justify-content:center;
+    padding:28px 16px 60px;
+  }
+  .wrap{width:100%; max-width:440px;}
+
+  .eyebrow{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    font-size:11px; letter-spacing:.22em; color:var(--gold-2);
+    text-transform:uppercase; font-weight:700; margin-bottom:6px;
+  }
+  .eyebrow::before,.eyebrow::after{content:""; height:1px; width:22px; background:linear-gradient(90deg, transparent, var(--gold)); opacity:.6;}
+  .eyebrow::after{background:linear-gradient(90deg, var(--gold), transparent);}
+
+  h1{
+    text-align:center; font-size:24px; margin:0 0 26px; font-weight:800;
+    letter-spacing:.01em;
+  }
+  h1 span{color:var(--gold-2);}
+
+  .card{
+    background:linear-gradient(180deg, var(--panel), var(--panel-2));
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:20px;
+    margin-bottom:16px;
+    box-shadow:0 20px 40px -20px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.03);
+  }
+
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  label{
+    display:block; font-size:12.5px; color:var(--muted); margin-bottom:7px; font-weight:600;
+  }
+  select, input[type=text], input[type=number]{
+    width:100%;
+    background:#0a1322;
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:13px 14px;
+    border-radius:11px;
+    font-size:15px;
+    outline:none;
+    transition:border-color .15s, box-shadow .15s;
+    font-family:inherit;
+    appearance:none;
+    -webkit-appearance:none;
+  }
+  select{
+    background-image:linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: 16px 50%, 22px 50%;
+    background-size:6px 6px, 6px 6px;
+    background-repeat:no-repeat;
+    padding-inline-start:32px;
+  }
+  select:focus, input:focus{
+    border-color:var(--gold);
+    box-shadow:0 0 0 3px rgba(201,162,39,.15);
+  }
+  .row2{display:flex; gap:10px;}
+  .row2 > div{flex:1;}
+
+  .add-gym{
+    display:flex; gap:8px; margin-top:8px;
+  }
+  .add-gym input, .add-gym select{flex:1;}
+  .add-gym select{margin-top:0;}
+
+  .btn-delete{
+    flex:0 0 auto;
+    background:rgba(226,88,107,.12); color:var(--danger);
+    border:1px solid rgba(226,88,107,.35);
+    border-radius:11px; padding:0 15px; font-size:16px;
+  }
+  .btn-delete:active{transform:scale(.94);}
+  .btn-delete.confirming{
+    background:var(--danger); color:#fff; border-color:var(--danger);
+  }
+
+  button{
+    font-family:inherit; cursor:pointer; border:none; outline:none;
+  }
+  .btn-save{
+    background:#16233c; color:var(--gold-2); border:1px solid var(--line);
+    padding:0 16px; border-radius:11px; font-size:13.5px; font-weight:700;
+    white-space:nowrap;
+  }
+  .btn-save:active{transform:scale(.97);}
+
+  .btn-generate{
+    width:100%;
+    margin-top:4px;
+    background:linear-gradient(135deg, var(--gold-2), var(--gold));
+    color:#1a1305;
+    font-weight:800;
+    font-size:15.5px;
+    padding:15px;
+    border-radius:13px;
+    letter-spacing:.02em;
+    box-shadow:0 12px 24px -10px rgba(201,162,39,.45);
+  }
+  .btn-generate:active{transform:scale(.985);}
+
+  /* key tag / output */
+  .keytag{
+    position:relative;
+    background:radial-gradient(120% 140% at 50% -10%, #16233c 0%, #0a1322 65%);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:22px 18px 20px;
+    text-align:center;
+    overflow:hidden;
+  }
+  .keytag::before{
+    content:"";
+    position:absolute; top:-30px; left:50%; transform:translateX(-50%);
+    width:60px; height:60px; border-radius:50%;
+    background:var(--bg-0);
+    border:1px solid var(--line);
+  }
+  .keytag-meta{
+    font-size:11.5px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase;
+    margin-bottom:10px; font-weight:700;
+  }
+  .code{
+    font-family:"SF Mono","Consolas",monospace;
+    font-size:40px;
+    font-weight:800;
+    letter-spacing:.14em;
+    color:var(--gold-2);
+    text-shadow:0 0 24px rgba(233,200,90,.25);
+    word-break:break-all;
+    line-height:1.2;
+  }
+  .code.placeholder{
+    color:var(--muted); font-size:16px; letter-spacing:normal; font-weight:600;
+  }
+  .keytag-sub{
+    margin-top:8px; font-size:12.5px; color:var(--muted);
+  }
+
+  .actions{
+    display:flex; gap:10px; margin-top:16px;
+  }
+  .btn-copy, .btn-wa{
+    flex:1;
+    padding:13px 10px;
+    border-radius:11px;
+    font-size:13.5px;
+    font-weight:700;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .btn-copy{
+    background:#16233c; color:var(--text); border:1px solid var(--line);
+  }
+  .btn-copy.copied{
+    background:rgba(61,220,151,.12); color:var(--ok); border-color:rgba(61,220,151,.4);
+  }
+  .btn-wa{
+    background:rgba(37,211,102,.12); color:#3fe08a; border:1px solid rgba(63,224,138,.35);
+  }
+  .btn-copy:active, .btn-wa:active{transform:scale(.97);}
+
+  .hint{
+    text-align:center; font-size:11.5px; color:var(--muted); margin-top:18px; line-height:1.6;
+  }
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:#101b30; border:1px solid var(--line); color:var(--text);
+    padding:11px 18px; border-radius:10px; font-size:13.5px;
+    opacity:0; pointer-events:none; transition:opacity .25s, transform .25s;
+    box-shadow:0 10px 30px rgba(0,0,0,.5);
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Gym Access</div>
+  <h1>مولّد <span>مفاتيح</span> الجيم</h1>
+
+  <div class="card">
+    <div class="field">
+      <label>اختر الجيم</label>
+      <div class="add-gym">
+        <select id="gymSelect"></select>
+        <button class="btn-delete" id="deleteGymBtn" title="حذف الجيم المختار">🗑</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>إضافة جيم جديد</label>
+      <div class="add-gym">
+        <input type="text" id="newGymInput" placeholder="اسم الجيم">
+        <button class="btn-save" id="saveGymBtn">حفظ الجيم</button>
+      </div>
+    </div>
+
+    <div class="field row2">
+      <div>
+        <label>الشهر</label>
+        <select id="monthSelect"></select>
+      </div>
+      <div>
+        <label>السنة</label>
+        <input type="number" id="yearInput" inputmode="numeric">
+      </div>
+    </div>
+
+    <button class="btn-generate" id="generateBtn">توليد الكود</button>
+  </div>
+
+  <div class="card keytag">
+    <div class="keytag-meta">الكود الناتج</div>
+    <div class="code placeholder" id="codeOutput">اضغط "توليد الكود"</div>
+    <div class="keytag-sub" id="codeSub"></div>
+
+    <div class="actions">
+      <button class="btn-copy" id="copyBtn">📋 نسخ الكود</button>
+      <button class="btn-wa" id="waBtn">📤 واتساب</button>
+    </div>
+  </div>
+
+  <div class="hint">يعمل بالكامل أوفلاين — الجيمات محفوظة على جهازك فقط.</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const SECRET_KEY = "!@#$%fadyemad890";
+  const STORAGE_KEY = "gym_key_generator_gyms";
+  const MONTH_NAMES = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+
+  const gymSelect = document.getElementById("gymSelect");
+  const newGymInput = document.getElementById("newGymInput");
+  const saveGymBtn = document.getElementById("saveGymBtn");
+  const deleteGymBtn = document.getElementById("deleteGymBtn");
+  const monthSelect = document.getElementById("monthSelect");
+  const yearInput = document.getElementById("yearInput");
+  const generateBtn = document.getElementById("generateBtn");
+  const codeOutput = document.getElementById("codeOutput");
+  const codeSub = document.getElementById("codeSub");
+  const copyBtn = document.getElementById("copyBtn");
+  const waBtn = document.getElementById("waBtn");
+  const toast = document.getElementById("toast");
+
+  let currentCode = "";
+
+  function loadGyms(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function saveGyms(list){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  }
+  function renderGyms(selectName){
+    const gyms = loadGyms();
+    gymSelect.innerHTML = "";
+    if(gyms.length === 0){
+      const opt = document.createElement("option");
+      opt.textContent = "لا يوجد جيمات محفوظة";
+      opt.disabled = true; opt.selected = true;
+      gymSelect.appendChild(opt);
+      return;
+    }
+    gyms.forEach(name=>{
+      const opt = document.createElement("option");
+      opt.value = name; opt.textContent = name;
+      gymSelect.appendChild(opt);
+    });
+    if(selectName && gyms.includes(selectName)){
+      gymSelect.value = selectName;
+    }
+  }
+
+  gymSelect.addEventListener("change", resetDeleteBtn);
+
+  function initMonths(){
+    const now = new Date();
+    MONTH_NAMES.forEach((name, i)=>{
+      const opt = document.createElement("option");
+      opt.value = i+1;
+      opt.textContent = `${String(i+1).padStart(2,"0")} - ${name}`;
+      monthSelect.appendChild(opt);
+    });
+    monthSelect.value = now.getMonth()+1;
+    yearInput.value = now.getFullYear();
+  }
+
+  saveGymBtn.addEventListener("click", ()=>{
+    const name = newGymInput.value.trim();
+    if(!name){ showToast("اكتب اسم الجيم أولاً"); return; }
+    const gyms = loadGyms();
+    if(gyms.includes(name)){ showToast("الجيم موجود بالفعل"); renderGyms(name); return; }
+    gyms.push(name);
+    saveGyms(gyms);
+    renderGyms(name);
+    newGymInput.value = "";
+    showToast("تم حفظ الجيم");
+  });
+
+  deleteGymBtn.addEventListener("click", ()=>{
+    const gyms = loadGyms();
+    const selected = gymSelect.value;
+    if(!selected || gyms.length === 0 || gymSelect.selectedOptions[0]?.disabled){
+      showToast("مفيش جيم مختار للحذف");
+      return;
+    }
+
+    if(deleteGymBtn.dataset.confirming === selected){
+      // second tap: actually delete
+      const updated = gyms.filter(name => name !== selected);
+      saveGyms(updated);
+      renderGyms();
+      codeOutput.textContent = "اضغط \"توليد الكود\"";
+      codeOutput.classList.add("placeholder");
+      codeSub.textContent = "";
+      currentCode = "";
+      showToast("تم حذف الجيم");
+      resetDeleteBtn();
+      return;
+    }
+
+    // first tap: arm confirmation
+    deleteGymBtn.dataset.confirming = selected;
+    deleteGymBtn.textContent = "✓";
+    deleteGymBtn.classList.add("confirming");
+    showToast(`دوس تاني للتأكيد على حذف "${selected}"`);
+    clearTimeout(deleteGymBtn._resetTimer);
+    deleteGymBtn._resetTimer = setTimeout(resetDeleteBtn, 3000);
+  });
+
+  function resetDeleteBtn(){
+    delete deleteGymBtn.dataset.confirming;
+    deleteGymBtn.textContent = "🗑";
+    deleteGymBtn.classList.remove("confirming");
+  }
+
+  // ===== نفس دالة توليد الكود المستخدمة في تطبيق الجدول (تاريخ انتهاء مشفر) =====
+  const LICENSE_EPOCH = Date.UTC(2020, 0, 1);
+
+  function dateToDayIndex(date){
+    const utcMidnight = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+    return Math.floor((utcMidnight - LICENSE_EPOCH) / (24 * 60 * 60 * 1000));
+  }
+
+  function fnv1a(str){
+    let hash = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++){
+      hash ^= str.charCodeAt(i);
+      hash = Math.imul(hash, 0x01000193);
+    }
+    return hash >>> 0;
+  }
+
+  function toBase36Padded(num, len){
+    let s = Math.abs(num).toString(36).toUpperCase();
+    while (s.length < len) s = '0' + s;
+    return s.slice(-len);
+  }
+
+  /**
+   * توليد كود تفعيل يحمل تاريخ الانتهاء مشفر جواه.
+   * expiry يقبل:
+   *   - نص بصيغة "YYYY-MM-DD" → تاريخ انتهاء محدد بالظبط
+   *   - رقم (عدد أيام)          → "بعد X يوم من النهاردة"
+   */
+  function generateActivationCode(gymName, expiry){
+    let expiryDate;
+    if (typeof expiry === 'number'){
+      expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + expiry);
+    } else {
+      const [y, m, d] = String(expiry).split('-').map(Number);
+      expiryDate = new Date(y, (m || 1) - 1, d || 1);
+    }
+
+    const dayIndex = dateToDayIndex(expiryDate);
+
+    const mask = fnv1a(gymName + SECRET_KEY + 'MASK') & 0xFFFFFF;
+    const obfuscated = (dayIndex ^ mask) >>> 0;
+
+    const checksum = fnv1a(gymName + SECRET_KEY + '#' + dayIndex) & 0xFFF;
+
+    return toBase36Padded(obfuscated, 5) + toBase36Padded(checksum, 3);
+  }
+
+  generateBtn.addEventListener("click", ()=>{
+    const gym = gymSelect.value;
+    const month = monthSelect.value;
+    const year = yearInput.value;
+
+    if(!gym || gymSelect.options.length === 0 || gymSelect.selectedOptions[0]?.disabled){
+      showToast("اختر جيم أولاً");
+      return;
+    }
+    if(!year){
+      showToast("أدخل السنة");
+      return;
+    }
+
+    // تاريخ الانتهاء = آخر يوم في الشهر/السنة المختارة (نفس سلوك الشهر القديم، لكن دلوقتي مشفر كتاريخ فعلي)
+    const lastDay = new Date(year, month, 0).getDate();
+    const expiryStr = `${year}-${String(month).padStart(2,"0")}-${String(lastDay).padStart(2,"0")}`;
+
+    currentCode = generateActivationCode(gym, expiryStr);
+
+    codeOutput.textContent = currentCode;
+    codeOutput.classList.remove("placeholder");
+    codeSub.textContent = `${gym} • ${MONTH_NAMES[month-1]} ${year}`;
+  });
+
+  copyBtn.addEventListener("click", async ()=>{
+    if(!currentCode){ showToast("ولّد الكود أولاً"); return; }
+    try{
+      await navigator.clipboard.writeText(currentCode);
+    }catch(e){
+      const ta = document.createElement("textarea");
+      ta.value = currentCode;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    copyBtn.classList.add("copied");
+    copyBtn.textContent = "✓ تم النسخ";
+    showToast("تم نسخ الكود");
+    setTimeout(()=>{
+      copyBtn.classList.remove("copied");
+      copyBtn.textContent = "📋 نسخ الكود";
+    }, 1800);
+  });
+
+  waBtn.addEventListener("click", ()=>{
+    if(!currentCode){ showToast("ولّد الكود أولاً"); return; }
+    const gym = gymSelect.value;
+    const text = encodeURIComponent(`كود ${gym}: ${currentCode}`);
+    window.open(`https://wa.me/?text=${text}`, "_blank");
+  });
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=> toast.classList.remove("show"), 2200);
+  }
+
+  renderGyms();
+  initMonths();
+</script>
+</body>
+</html>
